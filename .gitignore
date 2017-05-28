@@ -6,4 +6,4 @@ composer.phar
 composer.lock
 
 test.*
-./docs/
+docs/
