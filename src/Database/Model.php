@@ -3,6 +3,7 @@
 require_once("vendor/autoload.php");
 
 use Landscape\Interfaces\Database\iModel;
+use Landscape\Database\Database;
 
 abstract class Model implements iModel
 {
@@ -33,10 +34,30 @@ abstract class Model implements iModel
     return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $cl));
   }
 
-  // This needs a lot of TODO
-  abstract public static function getAll();
-  abstract public static function getByID();
-  abstract public static function createNew();
+  public static function newFromDataMap($map)
+  {
+    //TODO: we get the data as Hashtable (e.g. by DB query) and we need to set the fields
+  }
+
+  public static function getAll()
+  {
+    //TODO: A bit more complicated: need to create custom array-like object to
+    //delay the actual fetch until every filter/sort rule is added to the query
+    //or the first dataset is requested
+  }
+
+  public static function getByID($id)
+  {
+    $col = static::ID_COLUMN;
+    $s = static::getTableName();
+    $sql = "SELECT * from $s WHERE $col == $id;";
+    Database::getHandle()->query($sql);
+  }
+
+  public static function createNew($props=NULL)
+  {
+    // Create a new Object and fill all fields specified in $props
+  }
 
   final public static function getFields()
   {
@@ -55,11 +76,17 @@ abstract class Model implements iModel
     return $this->fields[$field]->getValue();
   }
 
-  abstract public function getID();
+  public function getID()
+  {
+    return $this->fields[static::ID_COLUMN]->getValue();
+  }
+    
   abstract public function save();
   abstract public function delete();
 }
 
+Database::connect("sqlite:test.db");
 print(Model::getCreationSQL());
+print_r(Model::getByID(1));
 
 ?>
